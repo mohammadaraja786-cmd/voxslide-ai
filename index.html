@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VoxSlide AI — Present hands-free. Control slides with your voice. No clicker, no phone, no hardware.">
+  <title>VoxSlide AI — Present Hands-Free</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0A0F1E;
+      --surface: #1E293B;
+      --border: #334155;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --green: #4ADE80;
+      --gold: #F59E0B;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+      --radius: 16px;
+      --shadow: 0 0 40px rgba(37, 99, 235, 0.15);
+      --nav-height: 72px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      outline: none;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: var(--nav-height);
+      display: flex;
+      align-items: center;
+      background: rgba(10, 15, 30, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .navbar.hidden {
+      transform: translateY(-100%);
+    }
+
+    .navbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      border-radius: 10px;
+      padding: 12px 24px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-sm {
+      padding: 8px 18px;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 0 30px rgba(37, 99, 235, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: rgba(37, 99, 235, 0.1);
+      box-shadow: 0 0 25px rgba(37, 99, 235, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .btn-whatsapp {
+      background: #25D366;
+      color: #fff;
+      width: 100%;
+      padding: 16px 24px;
+      font-size: 16px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(37, 211, 102, 0.3);
+    }
+
+    .btn-whatsapp:hover {
+      background: #1ebe57;
+      box-shadow: 0 0 30px rgba(37, 211, 102, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      padding: 8px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: var(--nav-height);
+      left: 0;
+      right: 0;
+      background: rgba(10, 15, 30, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 24px;
+      z-index: 999;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .mobile-menu.open {
+      display: flex;
+    }
+
+    .mobile-menu a {
+      color: var(--text-muted);
+      font-size: 16px;
+      font-weight: 500;
+      padding: 8px 0;
+    }
+
+    .mobile-menu a:hover {
+      color: var(--text);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: calc(var(--nav-height) + 40px) 24px 80px;
+      overflow: hidden;
+    }
+
+    .hero-orb {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, rgba(37, 99, 235, 0.05) 40%, transparent 70%);
+      pointer-events: none;
+      animation: orbPulse 6s ease-in-out infinite;
+    }
+
+    @keyframes orbPulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+      50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 800px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border: 1px solid var(--primary);
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 28px;
+      background: rgba(37, 99, 235, 0.08);
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #60A5FA, #2563EB, #818CF8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      color: var(--text-muted);
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      max-width: 600px;
+      margin-bottom: 36px;
+      line-height: 1.7;
+    }
+
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    .trust-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .trust-pill {
+      padding: 8px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* ── Sections ── */
+    section {
+      padding: 100px 0;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-header h2 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── How It Works ── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 60px;
+      left: calc(16.66% + 20px);
+      right: calc(16.66% + 20px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--border), var(--primary));
+      z-index: 0;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s, border-color 0.3s;
+    }
+
+    .step-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(37, 99, 235, 0.4);
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+    }
+
+    .step-icon {
+      font-size: 40px;
+      margin-bottom: 16px;
+    }
+
+    .step-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .step-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* ── Features ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(37, 99, 235, 0.3);
+      box-shadow: var(--shadow);
+    }
+
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* ── Pricing ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pricing-card.pro {
+      border-color: var(--primary);
+      box-shadow: var(--shadow);
+    }
+
+    .pricing-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      width: fit-content;
+    }
+
+    .pricing-badge.free {
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text-muted);
+    }
+
+    .pricing-badge.pro {
+      background: var(--gold);
+      color: #0A0F1E;
+    }
+
+    .pricing-price {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .pricing-price .strike {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      text-decoration: line-through;
+      font-weight: 500;
+      margin-left: 8px;
+    }
+
+    .pricing-sub {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 32px;
+      flex: 1;
+    }
+
+    .pricing-features li {
+      padding: 8px 0;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pricing-features .yes { color: var(--text); }
+    .pricing-features .no { color: var(--text-muted); opacity: 0.6; }
+
+    .pricing-note {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    /* ── Terminal ── */
+    .terminal-wrapper {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .terminal {
+      background: #0D1117;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .terminal-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      background: #161B22;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .terminal-dot.red { background: #FF5F57; }
+    .terminal-dot.yellow { background: #FEBC2E; }
+    .terminal-dot.green { background: #28C840; }
+
+    .terminal-title {
+      margin-left: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .terminal-body {
+      padding: 28px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #C9D1D9;
+    }
+
+    .terminal-body .cmd { color: var(--green); }
+    .terminal-body .label { color: #58A6FF; font-weight: 700; }
+    .terminal-body .phrases { color: var(--text-muted); }
+    .terminal-body .pro-note { color: var(--gold); margin-top: 16px; }
+
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background: var(--green);
+      animation: blink 1s step-end infinite;
+      vertical-align: text-bottom;
+      margin-left: 2px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* ── FAQ ── */
+    .faq-list {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      background: var(--surface);
+      transition: border-color 0.3s;
+    }
+
+    .faq-item.active {
+      border-color: rgba(37, 99, 235, 0.4);
+    }
+
+    .faq-question {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      background: none;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: left;
+      gap: 16px;
+    }
+
+    .faq-question:hover {
+      color: var(--primary);
+    }
+
+    .faq-icon {
+      font-size: 20px;
+      color: var(--text-muted);
+      transition: transform 0.3s;
+      flex-shrink: 0;
+    }
+
+    .faq-item.active .faq-icon {
+      transform: rotate(45deg);
+      color: var(--primary);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .faq-answer-inner {
+      padding: 0 24px 20px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    /* ── Final CTA ── */
+    .final-cta {
+      background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 50%, #3B82F6 100%);
+      padding: 100px 24px;
+      text-align: center;
+    }
+
+    .final-cta h2 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .final-cta p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1.1rem;
+      margin-bottom: 36px;
+    }
+
+    .final-cta .hero-buttons {
+      margin-bottom: 24px;
+    }
+
+    .final-cta .btn-outline {
+      border-color: #fff;
+      color: #fff;
+    }
+
+    .final-cta .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .final-cta .btn-primary {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .final-cta .btn-primary:hover {
+      background: #F1F5F9;
+    }
+
+    .final-cta-note {
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 14px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: #060A14;
+      padding: 48px 0 32px;
+    }
+
+    .footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-nav {
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .footer-nav a {
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .footer-nav a:hover {
+      color: var(--text);
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 16px;
+    }
+
+    .social-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .social-icon:hover {
+      border-color: var(--primary);
+      color: var(--text);
+    }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ── Modals ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 420px;
+      padding: 36px 32px;
+      position: relative;
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.open .modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal.payment-modal {
+      max-width: 480px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--text-muted);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: rgba(148, 163, 184, 0.2);
+      color: var(--text);
+    }
+
+    .modal h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      padding-right: 32px;
+    }
+
+    .modal-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .form-group input.error {
+      border-color: #EF4444;
+    }
+
+    .form-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .form-error {
+      font-size: 12px;
+      color: #EF4444;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .form-group.has-error .form-error {
+      display: block;
+    }
+
+    .btn-submit {
+      width: 100%;
+      margin-top: 8px;
+      position: relative;
+    }
+
+    .btn-submit .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .btn-submit.loading .spinner {
+      display: inline-block;
+    }
+
+    .btn-submit.loading .btn-text {
+      opacity: 0.7;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .success-state {
+      text-align: center;
+      padding: 20px 0;
+      display: none;
+    }
+
+    .success-state.show {
+      display: block;
+    }
+
+    .success-check {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .success-state h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .success-state p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .payment-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-right: 32px;
+    }
+
+    .lifetime-badge {
+      background: var(--gold);
+      color: #0A0F1E;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .payment-price {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .payment-price .amount {
+      font-size: 3rem;
+      font-weight: 800;
+    }
+
+    .payment-price .strike {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      text-decoration: line-through;
+      margin-left: 8px;
+    }
+
+    .payment-price-sub {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    .payment-methods h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .payment-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.25s;
+      margin-bottom: 12px;
+    }
+
+    .payment-card:hover {
+      border-color: rgba(37, 99, 235, 0.4);
+      box-shadow: 0 0 20px rgba(37, 99, 235, 0.1);
+    }
+
+    .payment-card.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 25px rgba(37, 99, 235, 0.2);
+      background: rgba(37, 99, 235, 0.05);
+    }
+
+    .payment-card-icon {
+      font-size: 28px;
+    }
+
+    .payment-card-info h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .payment-card-info p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .payment-instructions {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .payment-instructions.show {
+      display: block;
+    }
+
+    .info-box {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 12px;
+      padding: 18px 20px;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .info-box ol {
+      margin: 8px 0 0 20px;
+    }
+
+    .info-box li {
+      margin-bottom: 4px;
+    }
+
+    .payment-footer-note {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-top: 16px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .steps-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .steps-grid::before {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-top {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .footer-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .hero-buttons .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-inner">
+      <a href="#" class="logo">🎙️ VoxSlide AI</a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn btn-primary btn-sm" data-modal="download">Download Free</button>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#features" class="mobile-nav-link">Features</a>
+    <a href="#pricing" class="mobile-nav-link">Pricing</a>
+    <a href="#faq" class="mobile-nav-link">FAQ</a>
+    <button class="btn btn-primary" data-modal="download">Download Free</button>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero" id="hero">
+    <div class="hero-orb"></div>
+    <div class="hero-content fade-up">
+      <div class="badge">🚀 Launching Today — Windows 10/11</div>
+      <h1>
+        Present Hands-Free.<br>
+        <span class="gradient-text">Control Slides With Your Voice.</span>
+      </h1>
+      <p class="hero-sub">
+        No clicker. No phone. No hardware. Say next slide and watch it move.
+        Works with PowerPoint, Google Slides, Canva and more.
+      </p>
+      <div class="hero-buttons">
+        <button class="btn btn-primary" data-modal="download">⬇ Download Free</button>
+        <button class="btn btn-outline" data-modal="payment">💬 Get Pro — $29</button>
+      </div>
+      <div class="trust-row">
+        <span class="trust-pill">✅ No Setup</span>
+        <span class="trust-pill">🔜 Offline Mode Soon — Pro</span>
+        <span class="trust-pill">✅ Windows 10/11</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works">
+    <div class="container">
+      <div class="section-header fade-up">
+        <h2>Dead Simple to Use</h2>
+        <p>Up and running in under 60 seconds</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card fade-up">
+          <div class="step-number">01</div>
+          <div class="step-icon">📥</div>
+          <h3>Download &amp; Open</h3>
+          <p>Double click the exe. No Python, no installation, no technical setup required.</p>
+        </div>
+        <div class="step-card fade-up">
+          <div class="step-number">02</div>
+          <div class="step-icon">🎙️</div>
+          <h3>Click Start Listening</h3>
+          <p>Hit the button. VoxSlide calibrates your mic in 2 seconds automatically.</p>
+        </div>
+        <div class="step-card fade-up">
+          <div class="step-number">03</div>
+          <div class="step-icon">🗣️</div>
+          <h3>Just Speak &amp; Present</h3>
+          <p>Say next or go back. Your slide moves instantly. No hands needed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="container">
+      <div class="section-header fade-up">
+        <h2>Everything You Need to Own the Room</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card fade-up">
+          <div class="feature-icon">🎯</div>
+          <h3>Accurate Voice Detection</h3>
+          <p>Recognizes natural speech in real rooms with background noise</p>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">⚡</div>
+          <h3>Under 1 Second Response</h3>
+          <p>Voice to slide change in less than a second every time</p>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">🖥️</div>
+          <h3>Universal Compatibility</h3>
+          <p>PowerPoint, Google Slides, Canva, PDF — anything with arrow keys</p>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">🎚️</div>
+          <h3>Adjustable Sensitivity</h3>
+          <p>Mic sensitivity slider adapts to quiet rooms or loud venues</p>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">🔌</div>
+          <h3>Zero Hardware</h3>
+          <p>Just your laptop mic. No Bluetooth clicker, no dongle, nothing</p>
+        </div>
+        <div class="feature-card fade-up">
+          <div class="feature-icon">🔒</div>
+          <h3>Private by Design</h3>
+          <p>Audio processed instantly and discarded. Never recorded or stored</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing">
+    <div class="container">
+      <div class="section-header fade-up">
+        <h2>Simple Pricing. No Surprises.</h2>
+      </div>
+      <div class="pricing-grid">
+        <div class="pricing-card fade-up">
+          <span class="pricing-badge free">Free Forever</span>
+          <div class="pricing-price">$0</div>
+          <p class="pricing-sub">No credit card needed</p>
+          <ul class="pricing-features">
+            <li class="yes">✅ Full voice slide control</li>
+            <li class="yes">✅ All presentation apps</li>
+            <li class="yes">✅ Adjustable mic sensitivity</li>
+            <li class="no">❌ 10 minute session limit</li>
+            <li class="no">❌ Custom trigger words</li>
+            <li class="no">❌ Priority support</li>
+          </ul>
+          <button class="btn btn-outline" data-modal="download" style="width:100%">Download Free</button>
+        </div>
+        <div class="pricing-card pro fade-up">
+          <span class="pricing-badge pro">⚡ Most Popular</span>
+          <div class="pricing-price">$29 <span class="strike">$49</span></div>
+          <p class="pricing-sub">≈ PKR 8,000 • One-time • Lifetime access</p>
+          <ul class="pricing-features">
+            <li class="yes">✅ Full voice slide control</li>
+            <li class="yes">✅ All presentation apps</li>
+            <li class="yes">✅ Adjustable mic sensitivity</li>
+            <li class="yes">✅ Unlimited session time</li>
+            <li class="yes">✅ Custom trigger words</li>
+            <li class="yes">✅ Priority support + all updates</li>
+          </ul>
+          <button class="btn btn-primary" data-modal="payment" style="width:100%">Get Pro Now →</button>
+          <p class="pricing-note">💬 Key delivered via WhatsApp in 1 hour</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Voice Commands -->
+  <section id="commands">
+    <div class="container">
+      <div class="section-header fade-up">
+        <h2>Just Speak Naturally</h2>
+      </div>
+      <div class="terminal-wrapper fade-up">
+        <div class="terminal">
+          <div class="terminal-bar">
+            <span class="terminal-dot red"></span>
+            <span class="terminal-dot yellow"></span>
+            <span class="terminal-dot green"></span>
+            <span class="terminal-title">VoxSlide AI — Voice Commands</span>
+          </div>
+          <div class="terminal-body">
+            <span class="cmd">$ VoxSlide AI — Listening...</span><br><br>
+            <span class="label">➡️  NEXT SLIDE</span><br>
+            <span class="phrases">› "next" | "next slide" | "forward" | "advance"</span><br><br>
+            <span class="label">⬅️  PREVIOUS SLIDE</span><br>
+            <span class="phrases">› "back" | "previous" | "go back" | "rewind"</span><br><br>
+            <span class="pro-note">⚡  PRO USERS: Set any custom commands in app settings</span><span class="cursor"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-header fade-up">
+        <h2>Questions?</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item fade-up">
+          <button class="faq-question" aria-expanded="false">
+            Does it work without internet?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              Right now, VoxSlide needs an internet connection for voice recognition. Offline mode is coming soon and will be exclusive to Pro users — present confidently even on shaky event WiFi, no connection required.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item fade-up">
+          <button class="faq-question" aria-expanded="false">
+            Which apps does it support?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              Any app that uses arrow keys for navigation — PowerPoint, Google Slides, Keynote, Canva, PDF viewers, Prezi and more.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item fade-up">
+          <button class="faq-question" aria-expanded="false">
+            Will it work on Mac?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              Windows 10 and 11 only right now. Mac version is coming in the next update.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item fade-up">
+          <button class="faq-question" aria-expanded="false">
+            How do I get my Pro license key?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              After payment, WhatsApp your payment screenshot to us. We verify and send your unique license key within 1 hour. Enter it in the app to unlock Pro instantly.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item fade-up">
+          <button class="faq-question" aria-expanded="false">
+            Is my voice recorded or stored?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              Never. Audio is processed in real-time and immediately discarded. Nothing is stored on our servers.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item fade-up">
+          <button class="faq-question" aria-expanded="false">
+            What if I lose my license key?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">
+              Just WhatsApp us your payment proof again and we resend it immediately. Lifetime support included.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="final-cta fade-up">
+    <h2>Ready to Present Like a Pro?</h2>
+    <p>Join presenters who ditched the clicker.</p>
+    <div class="hero-buttons">
+      <button class="btn btn-primary" data-modal="download">Download Free</button>
+      <button class="btn btn-outline" data-modal="payment">Get Pro →</button>
+    </div>
+    <p class="final-cta-note">Windows 10/11 • Instant download • No signup required</p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-top">
+        <a href="#" class="logo">🎙️ VoxSlide AI</a>
+        <ul class="footer-nav">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+        <div class="footer-social">
+          <a href="#" class="social-icon" aria-label="Twitter">𝕏</a>
+          <a href="#" class="social-icon" aria-label="LinkedIn">in</a>
+          <a href="#" class="social-icon" aria-label="YouTube">▶</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 VoxSlide AI. All rights reserved.</span>
+        <span>Built with ❤️ in Islamabad, Pakistan</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Email Capture Modal -->
+  <div class="modal-overlay" id="downloadModal">
+    <div class="modal">
+      <button class="modal-close" data-close="downloadModal" aria-label="Close">&times;</button>
+      <div id="downloadFormWrap">
+        <h2>Get VoxSlide AI Free ⬇</h2>
+        <p class="modal-subtitle">Enter your details and download instantly.</p>
+        <form id="downloadForm" novalidate>
+          <div class="form-group" id="fg-name">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" name="fullName" placeholder="Ahmad Khan" autocomplete="name">
+            <span class="form-error">Please enter your full name</span>
+          </div>
+          <div class="form-group" id="fg-email">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="you@email.com" autocomplete="email">
+            <span class="form-error">Please enter a valid email</span>
+          </div>
+          <div class="form-group" id="fg-whatsapp">
+            <label for="whatsapp">WhatsApp Number</label>
+            <input type="tel" id="whatsapp" name="whatsapp" placeholder="+92 300 1234567" autocomplete="tel">
+            <p class="form-hint">We send your download link here too</p>
+            <span class="form-error">Please enter your WhatsApp number</span>
+          </div>
+          <button type="submit" class="btn btn-primary btn-submit" id="submitBtn">
+            <span class="spinner"></span>
+            <span class="btn-text">Get My Free Download →</span>
+          </button>
+        </form>
+      </div>
+      <div class="success-state" id="downloadSuccess">
+        <div class="success-check">✅</div>
+        <h3>Download starting automatically...</h3>
+        <p>Check your WhatsApp for the link too!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div class="modal-overlay" id="paymentModal">
+    <div class="modal payment-modal">
+      <button class="modal-close" data-close="paymentModal" aria-label="Close">&times;</button>
+      <div class="payment-header">
+        <h2>⚡ Get VoxSlide AI Pro</h2>
+        <span class="lifetime-badge">LIFETIME</span>
+      </div>
+      <div class="payment-price">
+        <span class="amount">$29</span>
+        <span class="strike">$49</span>
+      </div>
+      <p class="payment-price-sub">≈ PKR 8,000 one-time • Yours forever</p>
+      <div class="divider"></div>
+      <div class="payment-methods">
+        <h3>Choose Payment Method</h3>
+        <div class="payment-card" id="nayapayCard" data-method="nayapay">
+          <span class="payment-card-icon">💜</span>
+          <div class="payment-card-info">
+            <h4>NayaPay</h4>
+            <p id="nayapayNumber">03435050786 — Mohammad Ahmad</p>
+          </div>
+        </div>
+      </div>
+      <div class="payment-instructions" id="paymentInstructions">
+        <div class="info-box">
+          📋 <strong>How to complete your purchase:</strong>
+          <ol>
+            <li>Send PKR 8,000 to the account above</li>
+            <li>Screenshot your payment confirmation</li>
+            <li>WhatsApp the screenshot to +92-3435050786</li>
+            <li>Receive your license key within 1 hour ⚡</li>
+          </ol>
+        </div>
+        <a href="https://wa.me/923435050786?text=Hi!%20I%20just%20paid%20for%20VoxSlide%20AI%20Pro.%20Sending%20payment%20proof%20now." target="_blank" rel="noopener" class="btn btn-whatsapp">
+          📲 Send Payment Proof on WhatsApp
+        </a>
+        <p class="payment-footer-note">🔒 Manual verification • Key delivered in 1 hour</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ── Config (replace placeholders) ── */
+    const CONFIG = {
+      DOWNLOAD_LINK: '[DOWNLOAD_LINK_HERE]',
+      NAYAPAY_NUMBER: '03435050786'
+    };
+
+    /* ── Navbar scroll hide/show ── */
+    const navbar = document.getElementById('navbar');
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    function onScroll() {
+      const currentY = window.scrollY;
+      if (currentY > lastScrollY && currentY > 80) {
+        navbar.classList.add('hidden');
+      } else {
+        navbar.classList.remove('hidden');
+      }
+      lastScrollY = currentY;
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(onScroll);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    /* ── Mobile menu ── */
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      mobileMenu.classList.toggle('open');
+    });
+
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('open');
+      });
+    });
+
+    /* ── Intersection Observer fade-up ── */
+    const fadeEls = document.querySelectorAll('.fade-up');
+    const fadeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          fadeObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    fadeEls.forEach(el => fadeObserver.observe(el));
+
+    /* ── Modals ── */
+    function openModal(id) {
+      const overlay = document.getElementById(id);
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      const overlay = document.getElementById(id);
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('[data-modal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.modal === 'download' ? 'downloadModal' : 'paymentModal';
+        openModal(target);
+      });
+    });
+
+    document.querySelectorAll('[data-close]').forEach(btn => {
+      btn.addEventListener('click', () => closeModal(btn.dataset.close));
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeModal(overlay.id);
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.open').forEach(o => closeModal(o.id));
+      }
+    });
+
+    /* ── Download form ── */
+    const downloadForm = document.getElementById('downloadForm');
+    const downloadFormWrap = document.getElementById('downloadFormWrap');
+    const downloadSuccess = document.getElementById('downloadSuccess');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function validateField(id, testFn) {
+      const group = document.getElementById(id);
+      const input = group.querySelector('input');
+      const valid = testFn(input.value.trim());
+      group.classList.toggle('has-error', !valid);
+      input.classList.toggle('error', !valid);
+      return valid;
+    }
+
+    function validateEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function triggerDownload() {
+      if (CONFIG.DOWNLOAD_LINK && !CONFIG.DOWNLOAD_LINK.includes('[')) {
+        const a = document.createElement('a');
+        a.href = CONFIG.DOWNLOAD_LINK;
+        a.download = '';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    }
+
+    function saveSubmission(data) {
+      const key = 'voxslide_submissions';
+      const existing = JSON.parse(localStorage.getItem(key) || '[]');
+      existing.push({ ...data, timestamp: new Date().toISOString() });
+      localStorage.setItem(key, JSON.stringify(existing));
+    }
+
+    async function submitToGoogleSheets(name, email, whatsapp) {
+      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiFScZvlakKO6isLTpLJNKaXgpFU-BUu9-ZD-DCkkjgaU6MmDWKmogr79MX3K6N4bc/exec";
+      
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            fullName: name,
+            email: email,
+            whatsapp: whatsapp
+          })
+        });
+        console.log("Data sent to Google Sheets");
+      } catch(error) {
+        console.log("Sheet error:", error);
+      }
+    }
+
+    function resetDownloadModal() {
+      downloadForm.reset();
+      downloadFormWrap.style.display = 'block';
+      downloadSuccess.classList.remove('show');
+      submitBtn.classList.remove('loading');
+      submitBtn.disabled = false;
+      document.querySelectorAll('#downloadForm .form-group').forEach(g => {
+        g.classList.remove('has-error');
+        g.querySelector('input')?.classList.remove('error');
+      });
+    }
+
+    document.getElementById('downloadModal').addEventListener('transitionend', (e) => {
+      if (e.target.id === 'downloadModal' && !e.target.classList.contains('open')) {
+        resetDownloadModal();
+      }
+    });
+
+    downloadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nameValid = validateField('fg-name', v => v.length >= 2);
+      const emailValid = validateField('fg-email', validateEmail);
+      const whatsappValid = validateField('fg-whatsapp', v => v.length >= 8);
+
+      if (!nameValid || !emailValid || !whatsappValid) return;
+
+      const name = document.getElementById('fullName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const whatsapp = document.getElementById('whatsapp').value.trim();
+
+      submitBtn.classList.add('loading');
+      submitBtn.disabled = true;
+
+      saveSubmission({ fullName: name, email, whatsapp });
+      await submitToGoogleSheets(name, email, whatsapp);
+
+      await new Promise(r => setTimeout(r, 1500));
+
+      downloadFormWrap.style.display = 'none';
+      downloadSuccess.classList.add('show');
+      submitBtn.classList.remove('loading');
+
+      triggerDownload();
+    });
+
+    /* ── Payment method selection ── */
+    const nayapayCard = document.getElementById('nayapayCard');
+    const paymentInstructions = document.getElementById('paymentInstructions');
+
+    nayapayCard.addEventListener('click', () => {
+      nayapayCard.classList.add('selected');
+      paymentInstructions.classList.add('show');
+    });
+
+    document.getElementById('paymentModal').addEventListener('transitionend', (e) => {
+      if (e.target.id === 'paymentModal' && !e.target.classList.contains('open')) {
+        nayapayCard.classList.remove('selected');
+        paymentInstructions.classList.remove('show');
+      }
+    });
+
+    /* ── FAQ accordion ── */
+    document.querySelectorAll('.faq-item').forEach(item => {
+      const question = item.querySelector('.faq-question');
+      const answer = item.querySelector('.faq-answer');
+
+      question.addEventListener('click', () => {
+        const isActive = item.classList.contains('active');
+
+        document.querySelectorAll('.faq-item.active').forEach(other => {
+          if (other !== item) {
+            other.classList.remove('active');
+            other.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+            other.querySelector('.faq-answer').style.maxHeight = '0';
+          }
+        });
+
+        if (isActive) {
+          item.classList.remove('active');
+          question.setAttribute('aria-expanded', 'false');
+          answer.style.maxHeight = '0';
+        } else {
+          item.classList.add('active');
+          question.setAttribute('aria-expanded', 'true');
+          answer.style.maxHeight = answer.scrollHeight + 'px';
+        }
+      });
+    });
+
+    /* ── Set NayaPay number from config ── */
+    document.getElementById('nayapayNumber').textContent =
+      CONFIG.NAYAPAY_NUMBER + ' — Mohammad Ahmad';
+  </script>
+</body>
+</html>
