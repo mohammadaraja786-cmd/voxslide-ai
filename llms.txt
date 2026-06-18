@@ -1,0 +1,13 @@
+# VoxSlide AI
+
+> Voice-controlled presentation slides for Windows. Hands-free, no clicker required.
+
+## Core Features
+- Voice control commands (e.g., "next slide", "previous slide").
+- Zero hardware setup needed; works via standard microphone.
+- Native integration with PowerPoint, Google Slides, and Canva.
+- Completely free download for Windows platforms.
+
+## Official Resources
+- Website: https://vercel.app
+- Documentation & Support: contact Mohammad Ahmad

@@ -1,4 +1,11 @@
 User-agent: *
 Allow: /
-Sitemap: https://voxslide-ai.vercel.app/sitemap.xml
+Sitemap: https://vercel.app/sitemap.xml
 
+# Allow AI crawlers to scan your public product features for AEO answers
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
