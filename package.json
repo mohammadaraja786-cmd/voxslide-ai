@@ -1,5 +1,12 @@
 {
   "dependencies": {
     "@vercel/analytics": "^2.0.1"
+  },
+  "devDependencies": {
+    "sitemap-generator": "^8.5.1"
+  },
+  "scripts": {
+    "optimize": "node optimize.js",
+    "prepush": "npm run optimize"
   }
 }
